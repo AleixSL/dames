@@ -102,5 +102,48 @@ public class albale extends Jugador{
         return suma;
     }
     
+    private int EvalPos(CheckersData Tablero, int i, int j, int jugador){
+        int numVerm = comptaVerm(Tablero);
+        int numNegr = comptaNegr(Tablero);
+        int eval = 0;        
+        if(jugador == CheckersData.RED){
+            eval = numVerm - numNegr;
+        }
+        else eval = numNegr - numVerm;
+    
+        return eval;
+    }
+    
+    private int comptaVerm(CheckersData Tablero){
+        int comptVerm = 0;
+        for(int i = 0; i<Tablero.getBoardColumnCount();++i){
+            for(int j = 0; j<Tablero.getBoardRowCount();++j){
+                if(Tablero.pieceAt(i,j) == CheckersData.RED){
+                    ++comptVerm;
+                }
+                else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){
+                    comptVerm += 10; //El rei el compto per 10
+                }
+            }
+        }
+        return comptVerm;
+    }
+    
+    private int comptaNegr(CheckersData Tablero){
+        int comptNegr = 0;
+        for(int i = 0; i<Tablero.getBoardColumnCount();++i){
+            for(int j = 0; j<Tablero.getBoardRowCount();++j){
+                if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
+                    ++comptNegr;
+                }
+                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
+                    comptNegr += 10; //El rei el compto per 10
+                }
+            }
+        }
+        return comptNegr;
+    }
+    
+    
     
 }
