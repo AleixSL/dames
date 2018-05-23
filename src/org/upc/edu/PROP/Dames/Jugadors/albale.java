@@ -7,15 +7,16 @@ package org.upc.edu.PROP.Dames.Jugadors;
 import java.util.concurrent.ThreadLocalRandom;
 import org.upc.edu.PROP.Dames.Model.CheckersData;
 import org.upc.edu.PROP.Dames.Model.CheckersMove;
+import javafx.util.Pair;
 /**
  *
  * @author e7844438
  */
 public class albale extends Jugador{
     
-    private int profunditat=0;    
+    private int profunditat=2;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
-    
+    private int player1=0;
     public albale(String nom){
         super(nom,false);
     }
@@ -26,15 +27,23 @@ public class albale extends Jugador{
         int ElMejor=0;
         int actualM=-InfinitPositiu;
         int jugador=0;
+        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING){
+            jugador=CheckersData.BLACK;
+           player1=CheckersData.RED;
+            }
+           else 
+            {
+            jugador=CheckersData.RED;
+            player1=CheckersData.BLACK;
+            }
         for (int i = 0; i<jugades.length; i++){
             CheckersMove jugada = jugades[i];
             CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
             if(ha_guanyat(despres)){
                 return i;
             }
-            if(despres.pieceAt(jugada.fromCol,jugada.fromRow)==CheckersData.RED || despres.pieceAt(jugada.fromCol,jugada.fromRow)==CheckersData.RED_KING)jugador=0;
-            else jugador=1;
-            ElMejor=minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat,jugador);
+           
+            ElMejor=minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat,player1);
                 if(ElMejor>actualM){
                     move=i;
                     actualM=ElMejor;
@@ -60,16 +69,19 @@ public class albale extends Jugador{
     }
     private int minim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador)
     {
-        
+        int njugador=0;
+        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
+           else njugador=CheckersData.BLACK;
         if(prof == 0) return SumaT(d, jugador);
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
             CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
-            if (ha_guanyat(despres)) {
+            if(ha_guanyat(despres)){
                 return -InfinitPositiu;
             }
-            beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat,jugador));
+            
+            beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof-1,njugador));
             if(beta <= alfa) return beta;
             
         }
@@ -77,45 +89,46 @@ public class albale extends Jugador{
     }
     private int maxim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador){
         
+        int njugador=0;
+        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
+           else njugador=CheckersData.BLACK;
         if(prof == 0) return SumaT(d, jugador);
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
             CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
-            if (ha_guanyat(despres)) {
-                return -InfinitPositiu;
+            if(ha_guanyat(despres)){
+                return InfinitPositiu;
             }
-                alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat,jugador));
-                if(alfa >= beta) return alfa;
+            alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof,njugador));
+            if(alfa >= beta) return alfa;
             }
         
         return alfa;
     }
-    private int SumaT(CheckersData Tablero, int jugador) {
-
-        int suma = 0;
-        for (int i = 0; i < Tablero.getBoardColumnCount(); i++)
-            for (int j = 0; j < Tablero.getBoardRowCount(); j++)
-                suma += EvalPos(Tablero, i, j, jugador);
-            
-
-        return suma;
-    }
     
-    private int EvalPos(CheckersData Tablero, int i, int j, int jugador){
-        int numVerm = comptaVerm(Tablero);
-        int numNegr = comptaNegr(Tablero);
+    
+    private int SumaT(CheckersData Tablero, int jugador){
+        
+        Pair<Integer, Integer> aux = new Pair<>(0, 0);
+        aux=comptaVerm(Tablero);
+        int numVerm = aux.getKey();
+        int numNegr = aux.getValue();
         int eval = 0;        
+        
         if(jugador == CheckersData.RED){
             eval = numVerm - numNegr;
         }
         else eval = numNegr - numVerm;
-    
-        return eval;
+        if(jugador==player1) return eval;
+        else return-eval;
     }
     
-    private int comptaVerm(CheckersData Tablero){
+    private Pair<Integer, Integer> comptaVerm(CheckersData Tablero){
+        
+        
         int comptVerm = 0;
+        int comptNegr = 0;
         for(int i = 0; i<Tablero.getBoardColumnCount();++i){
             for(int j = 0; j<Tablero.getBoardRowCount();++j){
                 if(Tablero.pieceAt(i,j) == CheckersData.RED){
@@ -124,9 +137,17 @@ public class albale extends Jugador{
                 else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){
                     comptVerm += 10; //El rei el compto per 10
                 }
+                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
+                    ++comptNegr;
+                }
+                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
+                    comptNegr += 10; //El rei el compto per 10
+                }
             }
         }
-        return comptVerm;
+        Pair<Integer, Integer> aux = new Pair<>(comptVerm, comptNegr);
+       
+        return aux;
     }
     
     private int comptaNegr(CheckersData Tablero){
