@@ -14,20 +14,21 @@ import javafx.util.Pair;
  */
 public class albale extends Jugador{
     
-    private int profunditat=4;    
+    private int profunditat=5;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
-    private int player1=0;
+    private int player1=0,jugador=0;
     public albale(String nom){
         super(nom,false);
     }
     
     @Override
     public int getJugada(CheckersMove[] jugades, CheckersData d){
+        
         int move = 0;
         int ElMejor=0;
         int actualM=-InfinitPositiu;
-        int jugador=0;
-        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING){
+        
+        if(d.pieceAt(jugades[0].fromRow,jugades[0].fromCol)==CheckersData.RED || d.pieceAt(jugades[0].fromRow,jugades[0].fromCol)==CheckersData.RED_KING){
             jugador=CheckersData.BLACK;
             player1=CheckersData.RED;
             }
@@ -36,19 +37,31 @@ public class albale extends Jugador{
             jugador=CheckersData.RED;
             player1=CheckersData.BLACK;
             }
+        System.out.println(SumaT(d, player1,0));
+        System.out.println(player1);
         for (int i = 0; i<jugades.length; i++){
             CheckersMove jugada = jugades[i];
-            CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+            CheckersData despres=d;
+            
+            
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1)==null)){
+                
+                despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+                jugada = despres.getLegalMoves(player1)[0];
+                
+                }
+            despres= despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
             if(ha_guanyat(despres)){
                 return i;
             }
-           
-            ElMejor=minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat,player1);
-                if(ElMejor>actualM){
+            ElMejor=minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat);
+            
+            if(ElMejor>actualM){
                     move=i;
                     actualM=ElMejor;
                 }
         }
+        
         return move;
     }
     
@@ -72,47 +85,60 @@ public class albale extends Jugador{
     
         return fin;
     }
-    private int minim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador)
+    private int minim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof)
     {
-        int njugador=0;
-        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
-           else njugador=CheckersData.BLACK;
-        if(prof == 0) return SumaT(d, jugador);
+        
+        if(prof == 0) return SumaT(d, player1,prof);
+        if(jugades==null)return beta;
         for(int i = 0; i < jugades.length; i++){
-            
             CheckersMove jugada = jugades[i];
-            CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+            CheckersData despres=d;
+            
+            
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(jugador)==null)){
+                
+                despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+                if(!(despres.getLegalMoves(jugador)==null))jugada = despres.getLegalMoves(jugador)[0];
+                
+                
+                }
+            despres= despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
             if(ha_guanyat(despres)){
                 return -InfinitPositiu;
             }
-            
-            beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof-1,njugador));
+            beta = Math.min(beta, maxim(despres.getLegalMoves(player1),despres,alfa,beta,prof-1));
             if(beta <= alfa) return beta;
             
         }
         return beta;
     }
-    private int maxim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador){
+    private int maxim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof){
         
-        int njugador=0;
-        if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
-           else njugador=CheckersData.BLACK;
-        if(prof == 0) return SumaT(d, jugador);
+        if(prof == 0) return SumaT(d, jugador,prof);
+        if(jugades==null)return alfa;
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
-            CheckersData despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+            CheckersData despres=d;
+            
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1)==null)){
+                
+                despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+                if(!(despres.getLegalMoves(player1)==null))jugada = despres.getLegalMoves(player1)[0];
+                
+                }
+            despres= despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
             if(ha_guanyat(despres)){
                 return InfinitPositiu;
             }
-            alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof,njugador));
+            alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,alfa,beta,prof));
             if(alfa >= beta) return alfa;
             }
         
         return alfa;
     }
     
-     private int SumaT(CheckersData Tablero, int jugador){
+     private int SumaT(CheckersData Tablero, int jugador, int prof){
         
         Pair<Integer, Integer> aux = new Pair<>(0, 0);
         aux=comptaVerm(Tablero);
@@ -135,29 +161,34 @@ public class albale extends Jugador{
         for(int i = 0; i<Tablero.getBoardColumnCount();++i){
             for(int j = 0; j<Tablero.getBoardRowCount();++j){
                 aux=enbloc(Tablero, i, j);
-                if(Tablero.pieceAt(i,j) == CheckersData.RED){
-                    if(centre(i,j)) comptVerm += 2;                             //Si està al centre del camp compta 2 (qui controla el centre domina la partida)
-                    else if(cantosVerm(i,j)) comptVerm+=10;                     //Si està al cantó, compta 10 (als cantons no et poden matar)
-                    else if(aux.getKey()==1) comptVerm += aux.getValue() + 2;   //Si està en bloc, suma el numero de peces al comptador (en manada (de lobos no l'altra pls))
-                    else ++comptVerm;                                           //Si compta una fitxa normal només compta 1
-                }
-                else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){         //Els reis compten més
-                    if(centre(i,j)) comptVerm +=12;
-                    else if(cantosVerm(i,j))comptVerm += 20;
-                    else if(aux.getKey()==1) comptVerm += aux.getValue() + 12;
-                    else comptVerm += 10;
-                }
-                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
-                    if(centre(i,j)) comptNegr += 2;
-                    else if(cantosNegr(i,j)) comptNegr += 10;
-                    else if(aux.getKey()==1) comptNegr += aux.getValue() + 2;
-                    else ++comptNegr;
-                }
-                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
-                    if(centre(i,j)) comptNegr += 12;
-                    else if(cantosNegr(i,j)) comptNegr += 20;
-                    else if(aux.getKey()==1) comptNegr += aux.getValue() + 12;
-                    else comptNegr += 10; //El rei el compto per 10
+                switch (Tablero.pieceAt(i,j)) {
+                    case CheckersData.RED:
+                        if(centre(i,j)) comptVerm += 2;                             //Si està al centre del camp compta 2 (qui controla el centre domina la partida)
+                        else if(cantosVerm(i,j)) comptVerm+=10;                     //Si està al cantó, compta 10 (als cantons no et poden matar)
+                        else if(aux.getKey()==1) comptVerm += aux.getValue() + 2;   //Si està en bloc, suma el numero de peces al comptador (en manada (de lobos no l'altra pls))
+                        else ++comptVerm;                                           //Si compta una fitxa normal només compta 1
+                        break;
+                    case CheckersData.RED_KING:
+                        //Els reis compten més
+                        if(centre(i,j)) comptVerm +=12;
+                        else if(cantosVerm(i,j))comptVerm += 20;
+                        else if(aux.getKey()==1) comptVerm += aux.getValue() + 12;
+                        else comptVerm += 10;
+                        break;
+                    case CheckersData.BLACK:
+                        if(centre(i,j)) comptNegr += 2;
+                        else if(cantosNegr(i,j)) comptNegr += 10;
+                        else if(aux.getKey()==1) comptNegr += aux.getValue() + 2;
+                        else ++comptNegr;
+                        break;
+                    case CheckersData.BLACK_KING:
+                        if(centre(i,j)) comptNegr += 12;
+                        else if(cantosNegr(i,j)) comptNegr += 20;
+                        else if(aux.getKey()==1) comptNegr += aux.getValue() + 12;
+                        else comptNegr += 10; //El rei el compto per 10
+                        break;
+                    default:
+                        break;
                 }
             }
         }
