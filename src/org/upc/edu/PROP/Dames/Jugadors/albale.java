@@ -14,7 +14,7 @@ import javafx.util.Pair;
  */
 public class albale extends Jugador{
     
-    private int profunditat=3;    
+    private int profunditat=2;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
     private int player1=0,jugador=0;
     public albale(String nom){
@@ -37,8 +37,7 @@ public class albale extends Jugador{
             jugador=CheckersData.RED;
             player1=CheckersData.BLACK;
             }
-        System.out.println(SumaT(d, player1,0));
-        System.out.println(player1);
+       
         for (int i = 0; i<jugades.length; i++){
             CheckersMove jugada = jugades[i];
             CheckersData despres=d;
@@ -55,13 +54,14 @@ public class albale extends Jugador{
                 return i;
             }
             ElMejor=minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,profunditat);
-            
+            System.out.println(ElMejor);
             if(ElMejor>actualM){
                     move=i;
                     actualM=ElMejor;
                 }
         }
-        
+         
+        System.out.println(actualM);
         return move;
     }
     
@@ -93,7 +93,7 @@ public class albale extends Jugador{
             while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(jugador)==null)){
                 
                 despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
-                 jugada = despres.getLegalMoves(jugador)[0];
+                if(!(despres.getLegalMoves(jugador)==null))jugada = despres.getLegalMoves(jugador)[0];
                 
                 
                 }
@@ -119,7 +119,7 @@ public class albale extends Jugador{
             while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1)==null)){
                 
                 despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
-                jugada = despres.getLegalMoves(player1)[0];
+                if(!(despres.getLegalMoves(player1)==null))jugada = despres.getLegalMoves(player1)[0];
                 
                 }
             despres= despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
@@ -162,18 +162,18 @@ public class albale extends Jugador{
         for(int i = 0; i<Tablero.getBoardColumnCount();++i){
             for(int j = 0; j<Tablero.getBoardRowCount();++j){
                 if(Tablero.pieceAt(i,j) == CheckersData.RED){
-                    comptVerm+=3;
+                    comptVerm+=1;
                    
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){
-                    comptVerm += 10; //El rei el compto per 10
+                    comptVerm += 2; //El rei el compto per 10
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
-                    comptNegr+=3;
+                    comptNegr+=1;
                    
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
-                    comptNegr += 10; //El rei el compto per 10
+                    comptNegr += 2; //El rei el compto per 10
                 }
             }
         }
