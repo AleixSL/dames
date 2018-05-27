@@ -14,7 +14,7 @@ import javafx.util.Pair;
  */
 public class albale extends Jugador{
     
-    private int profunditat=2;    
+    private int profunditat=3;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
     private int player1=0;
     public albale(String nom){
@@ -70,9 +70,10 @@ public class albale extends Jugador{
     private int minim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador)
     {
         int njugador=0;
+        
+        if(prof == 0 || jugades.length==0) return SumaT(d, jugador,prof);
         if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
            else njugador=CheckersData.BLACK;
-        if(prof == 0) return SumaT(d, jugador);
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
@@ -80,8 +81,15 @@ public class albale extends Jugador{
             if(ha_guanyat(despres)){
                 return -InfinitPositiu;
             }
-            
-            beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof-1,njugador));
+            if(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2){
+                
+                jugada = despres.getLegalMoves(jugador)[0];
+                if(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2){
+                    despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+                }
+                else beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,alfa,beta,prof-1,njugador));
+            }
+            else beta = Math.min(beta, maxim(despres.getLegalMoves(jugador),despres,alfa,beta,prof-1,njugador));
             if(beta <= alfa) return beta;
             
         }
@@ -90,9 +98,10 @@ public class albale extends Jugador{
     private int maxim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof, int jugador){
         
         int njugador=0;
+        
+        if(prof == 0 || jugades.length==0) return SumaT(d, jugador,prof);
         if(d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED || d.pieceAt(jugades[0].fromCol,jugades[0].fromRow)==CheckersData.RED_KING)njugador=CheckersData.RED;
            else njugador=CheckersData.BLACK;
-        if(prof == 0) return SumaT(d, jugador);
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
@@ -100,7 +109,15 @@ public class albale extends Jugador{
             if(ha_guanyat(despres)){
                 return InfinitPositiu;
             }
-            alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,-InfinitPositiu,InfinitPositiu,prof,njugador));
+            if(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2){
+                
+                jugada = despres.getLegalMoves(jugador)[0];
+                if(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2){
+                    despres = d.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
+                }
+                else alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,alfa,beta,prof-1,njugador));
+            }
+            else alfa = Math.max(alfa, minim(despres.getLegalMoves(jugador),despres,alfa,beta,prof-1,njugador));
             if(alfa >= beta) return alfa;
             }
         
@@ -108,7 +125,7 @@ public class albale extends Jugador{
     }
     
     
-    private int SumaT(CheckersData Tablero, int jugador){
+    private int SumaT(CheckersData Tablero, int jugador,int prof){
         
         Pair<Integer, Integer> aux = new Pair<>(0, 0);
         aux=comptaVerm(Tablero);
@@ -118,8 +135,13 @@ public class albale extends Jugador{
         
         if(jugador == CheckersData.RED){
             eval = numVerm - numNegr;
+            if(numNegr==0 && player1==CheckersData.RED)eval=eval*(prof+1);
+            
         }
-        else eval = numNegr - numVerm;
+        else {
+            eval = numNegr - numVerm;
+            if(numVerm==0 && player1==CheckersData.BLACK)eval=eval*(prof+1);
+        }
         if(jugador==player1) return eval;
         else return-eval;
     }
@@ -132,16 +154,18 @@ public class albale extends Jugador{
         for(int i = 0; i<Tablero.getBoardColumnCount();++i){
             for(int j = 0; j<Tablero.getBoardRowCount();++j){
                 if(Tablero.pieceAt(i,j) == CheckersData.RED){
-                    ++comptVerm;
+                    comptVerm+=3;
+                    if(i>= Tablero.getBoardColumnCount()-2 )comptVerm+=2;
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){
-                    comptVerm += 10; //El rei el compto per 10
+                    comptVerm += 8; //El rei el compto per 10
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
-                    ++comptNegr;
+                    comptNegr+=3;
+                    if(i<= 2 )comptNegr+=2;
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
-                    comptNegr += 10; //El rei el compto per 10
+                    comptNegr += 8; //El rei el compto per 10
                 }
             }
         }
@@ -150,20 +174,6 @@ public class albale extends Jugador{
         return aux;
     }
     
-    private int comptaNegr(CheckersData Tablero){
-        int comptNegr = 0;
-        for(int i = 0; i<Tablero.getBoardColumnCount();++i){
-            for(int j = 0; j<Tablero.getBoardRowCount();++j){
-                if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
-                    ++comptNegr;
-                }
-                else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
-                    comptNegr += 10; //El rei el compto per 10
-                }
-            }
-        }
-        return comptNegr;
-    }
     
     
     
