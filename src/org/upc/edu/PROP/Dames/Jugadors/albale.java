@@ -14,7 +14,7 @@ import javafx.util.Pair;
  */
 public class albale extends Jugador{
     
-    private int profunditat=5;    
+    private final int profunditat=6;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
     private int player1=0,jugador=0;
     public albale(String nom){
@@ -164,27 +164,27 @@ public class albale extends Jugador{
                 switch (Tablero.pieceAt(i,j)) {
                     case CheckersData.RED:
                         if(centre(i,j)) comptVerm += 2;                             //Si està al centre del camp compta 2 (qui controla el centre domina la partida)
-                        else if(cantosVerm(i,j)) comptVerm+=10;                     //Si està al cantó, compta 10 (als cantons no et poden matar)
+                        else if(cantosVerm(i,j)) comptVerm+=5;                     //Si està al cantó, compta 10 (als cantons no et poden matar)
                         else if(aux.getKey()==1) comptVerm += aux.getValue() + 2;   //Si està en bloc, suma el numero de peces al comptador (en manada (de lobos no l'altra pls))
                         else ++comptVerm;                                           //Si compta una fitxa normal només compta 1
                         break;
                     case CheckersData.RED_KING:
                         //Els reis compten més
-                        if(centre(i,j)) comptVerm +=12;
-                        else if(cantosVerm(i,j))comptVerm += 20;
-                        else if(aux.getKey()==1) comptVerm += aux.getValue() + 12;
+                        if(centre(i,j)) comptVerm +=10;
+                        else if(cantosVerm(i,j))comptVerm += 12;
+                        else if(aux.getKey()==1) comptVerm += aux.getValue() + 10;
                         else comptVerm += 10;
                         break;
                     case CheckersData.BLACK:
                         if(centre(i,j)) comptNegr += 2;
-                        else if(cantosNegr(i,j)) comptNegr += 10;
+                        else if(cantosNegr(i,j)) comptNegr += 5;
                         else if(aux.getKey()==1) comptNegr += aux.getValue() + 2;
                         else ++comptNegr;
                         break;
                     case CheckersData.BLACK_KING:
-                        if(centre(i,j)) comptNegr += 12;
-                        else if(cantosNegr(i,j)) comptNegr += 20;
-                        else if(aux.getKey()==1) comptNegr += aux.getValue() + 12;
+                        if(centre(i,j)) comptNegr += 10;
+                        else if(cantosNegr(i,j)) comptNegr += 12;
+                        else if(aux.getKey()==1) comptNegr += aux.getValue() + 10;
                         else comptNegr += 10; //El rei el compto per 10
                         break;
                     default:
