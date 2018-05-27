@@ -55,13 +55,18 @@ public class albale extends Jugador{
     
     private boolean ha_guanyat(CheckersData Tablero){
         boolean fin=false;
-        int ContadorR=0;
-        int ContadorB=0;
-         for (int i = 0; i < Tablero.getBoardColumnCount(); i++)
+        /*int ContadorR = 0;
+        int ContadorB = 0;
+        for (int i = 0; i < Tablero.getBoardColumnCount(); i++)
             for (int j = 0; j < Tablero.getBoardRowCount(); j++) {
                 if(Tablero.pieceAt(i,j)==CheckersData.RED || Tablero.pieceAt(i,j)==CheckersData.RED_KING)ContadorR++;
                 if(Tablero.pieceAt(i,j)==CheckersData.BLACK || Tablero.pieceAt(i,j)==CheckersData.BLACK_KING)ContadorB++;
             }
+        */
+        Pair<Integer, Integer> aux = new Pair<>(0, 0);
+        aux=comptaVerm(Tablero);
+        int ContadorR = aux.getKey();
+        int ContadorB = aux.getValue();
         if(ContadorR==0 || ContadorB==0)fin=true;
         
     
@@ -126,33 +131,39 @@ public class albale extends Jugador{
     private Pair<Integer, Integer> comptaVerm(CheckersData Tablero){
         int comptVerm = 0;
         int comptNegr = 0;
+        Pair<Integer, Integer> aux = new Pair<>(0, 0);
         for(int i = 0; i<Tablero.getBoardColumnCount();++i){
             for(int j = 0; j<Tablero.getBoardRowCount();++j){
+                aux=enbloc(Tablero, i, j);
                 if(Tablero.pieceAt(i,j) == CheckersData.RED){
-                    if(centre(i,j)) comptVerm += 2;
-                    else if(cantosVerm(i,j)) comptVerm+=5;
-                    else ++comptVerm;
+                    if(centre(i,j)) comptVerm += 2;                             //Si està al centre del camp compta 2 (qui controla el centre domina la partida)
+                    else if(cantosVerm(i,j)) comptVerm+=10;                     //Si està al cantó, compta 10 (als cantons no et poden matar)
+                    else if(aux.getKey()==1) comptVerm += aux.getValue() + 2;   //Si està en bloc, suma el numero de peces al comptador (en manada (de lobos no l'altra pls))
+                    else ++comptVerm;                                           //Si compta una fitxa normal només compta 1
                 }
-                else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){
+                else if(Tablero.pieceAt(i,j) == CheckersData.RED_KING){         //Els reis compten més
                     if(centre(i,j)) comptVerm +=12;
-                    else if(cantosVerm(i,j))comptVerm += 15;
-                    else comptVerm += 10; //El rei el compto per 10
+                    else if(cantosVerm(i,j))comptVerm += 20;
+                    else if(aux.getKey()==1) comptVerm += aux.getValue() + 12;
+                    else comptVerm += 10;
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK){
                     if(centre(i,j)) comptNegr += 2;
-                    else if(cantosNegr(i,j)) comptNegr += 5;
+                    else if(cantosNegr(i,j)) comptNegr += 10;
+                    else if(aux.getKey()==1) comptNegr += aux.getValue() + 2;
                     else ++comptNegr;
                 }
                 else if(Tablero.pieceAt(i,j) == CheckersData.BLACK_KING){
                     if(centre(i,j)) comptNegr += 12;
-                    else if(cantosNegr(i,j)) comptNegr += 15;
+                    else if(cantosNegr(i,j)) comptNegr += 20;
+                    else if(aux.getKey()==1) comptNegr += aux.getValue() + 12;
                     else comptNegr += 10; //El rei el compto per 10
                 }
             }
         }
-        Pair<Integer, Integer> aux = new Pair<>(comptVerm, comptNegr);
+        Pair<Integer, Integer> aux2 = new Pair<>(comptVerm, comptNegr);
        
-        return aux;
+        return aux2;
     }
     
     /*
@@ -224,4 +235,31 @@ public class albale extends Jugador{
         return fi;
     }
 
+    private Pair<Integer, Integer> enbloc(CheckersData Tablero, int i, int j){
+        int bloc = 0;
+        int numFitxes = 0;
+        for(int a = 0; a < Tablero.getBoardColumnCount();++a){
+            for(int b = 0; b<Tablero.getBoardRowCount();++b){
+                if((((a==i-1)||(a==i+1))&&((b==j+1)||(b==j-1))) && (Tablero.pieceAt(a,b) == Tablero.pieceAt(i,j))){
+                    bloc = 1; //Si esta en bloc es posa a 1 (no es pot fer servir un booleà a un pair lol #chapuza)
+                    ++numFitxes;
+                }
+            }
+        }
+        Pair<Integer, Integer> aux = new Pair<>(bloc, numFitxes);
+        return aux;
+    }
+    /*private boolean enbloc(CheckersData Tablero, int i, int j){
+        boolean bloc = false;
+        for(int a = 0; a < Tablero.getBoardColumnCount();++a){
+            for(int b = 0; b<Tablero.getBoardRowCount();++b){
+                if(((a==i-1)||(a==i+1))&&((b==j+1)||(b==j-1))){
+                    bloc = true;
+                }
+                
+            }
+        }
+        return bloc;
+    }
+    */
 }
