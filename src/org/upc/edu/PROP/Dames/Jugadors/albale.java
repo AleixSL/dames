@@ -14,7 +14,7 @@ import javafx.util.Pair;
  */
 public class albale extends Jugador{
     
-    private int profunditat=5;    
+    private int profunditat=3;    
     private final Integer InfinitPositiu = Integer.MAX_VALUE;
     private int player1=0,jugador=0;
     public albale(String nom){
@@ -44,7 +44,7 @@ public class albale extends Jugador{
             CheckersData despres=d;
             
             
-            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1).length==0)){
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1)==null)){
                 
                 despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
                 jugada = despres.getLegalMoves(player1)[0];
@@ -84,13 +84,13 @@ public class albale extends Jugador{
     {
         
         if(prof == 0) return SumaT(d, player1,prof);
-        if(jugades.length==0)return beta;
+        if(jugades==null)return beta;
         for(int i = 0; i < jugades.length; i++){
             CheckersMove jugada = jugades[i];
             CheckersData despres=d;
             
             
-            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(jugador).length==0)){
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(jugador)==null)){
                 
                 despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
                  jugada = despres.getLegalMoves(jugador)[0];
@@ -110,13 +110,13 @@ public class albale extends Jugador{
     private int maxim(CheckersMove[] jugades,CheckersData d, int alfa, int beta, int prof){
         
         if(prof == 0) return SumaT(d, jugador,prof);
-        if(jugades.length==0)return alfa;
+        if(jugades==null)return alfa;
         for(int i = 0; i < jugades.length; i++){
             
             CheckersMove jugada = jugades[i];
             CheckersData despres=d;
             
-            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1).length==0)){
+            while(jugada.fromRow - jugada.toRow == 2 || jugada.fromRow - jugada.toRow == -2 && !(despres.getLegalMoves(player1)==null)){
                 
                 despres = despres.simMove(jugada.fromRow, jugada.fromCol, jugada.toRow, jugada.toCol);
                 jugada = despres.getLegalMoves(player1)[0];
